@@ -59,11 +59,6 @@ header = '### Business Process Config File ###\n#\n# Title           : '+process
 #     print("-m | --min          Choose your Minimal Activity Service (INTEGER, AND, OR)")
 #     print("-t | --template     Choose your Host Template")
 #     print("-f | --host         Choose your Hosts File\n")
-#     print("\nExample:\n")
-#     print("python3 insert_dashboard.py -c config.json")
-#     print("python3 insert_dashboard.py -l authentication.json -t template_windows")
-#     print("python3 insert_dashboard.py -l authentication.json -d admin_group")
-#     print("python3 insert_dashboard.py -l authentication.json -d admin_group -t template_windows\n")
 
 def permission(process):
     #change owner
