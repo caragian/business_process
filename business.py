@@ -48,7 +48,7 @@ logging.debug("[i] Template File: %s" %template_file)
 
 host_list = []
 host_to_replace = []
-header = '### Business Process Config File ###\n#\n# Title           : '+process.strip('.txt')+'\n# Owner           : root\n# AddToMenu       : yes\n# Statetype       : hard\n#\n###################################\n\n'
+header = '### Business Process Config File ###\n#\n# Title           : '+process.strip('.conf')+'\n# Owner           : root\n# AddToMenu       : yes\n# Statetype       : hard\n#\n###################################\n\n'
 
 # def helpOption():
 
