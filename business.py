@@ -95,13 +95,15 @@ def parse_host(hosts_file, host_list):
     return(host_list)
 
 def create_parent(parent, min, host_list):
-    if min is 'AND':
+    if min == 'and':
         parent_1 = parent + ' = ' + ' & '.join(host_list)
-    if min is 'OR':
+    if min == 'or':
         parent_1 = parent + ' = ' + ' | '.join(host_list)
     parent_2 = 'display 1;'+parent+';'+parent
-    if min is not 'and' and 'or' :
+    if min == 'min'+(int) :
+        print('ciao')
         parent_1 = parent + ' = ' + min + ' of: ' + ' + '.join(host_list)
+        exit()
     return(parent_1, parent_2)
 
 def check_exists(file):

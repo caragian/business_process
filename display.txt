@@ -1,0 +1,9 @@
+### Business Process Config File ###
+#
+# Title           : display
+# Owner           : root
+# AddToMenu       : yes
+# Statetype       : hard
+#
+###################################
+
