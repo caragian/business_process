@@ -11,11 +11,15 @@ import sys
 import logging
 import linecache
 import stat
+import re
+import in_place
+
+logging.basicConfig(level=logging.DEBUG)
 
 parser = argparse.ArgumentParser(description='Bussiness Process Tutorial || For more info and examples type "python3 business.py"')
 parser.add_argument('-b', '--business', dest='process', required=True, type=str, help='Choose Your Config Business Process Name')
 parser.add_argument('-p', '--parent',  dest='parent', required=True, type=str, help='Choose your Node Master')
-parser.add_argument('-m', '--min' , dest='min', required=True, type=str, help='Choose your Minimal Activity Service')
+parser.add_argument('-a', '--aggregator' , dest='aggregator', required=True, type=str, help='Choose your aggregatorimal Activity Service')
 parser.add_argument('-t', '--template', dest='template', required=True, type=str, help='Choose your Host Template')
 parser.add_argument('-f', '--host' , dest='host', required=True, type=str, help='Choose your Hosts File')
 # parser.add_argument('--tutorial' , dest='tutorial', required=False, help='For more info and examples type "python3 business.py"', action='store_true')
@@ -23,27 +27,22 @@ parser.add_argument('-f', '--host' , dest='host', required=True, type=str, help=
 args = parser.parse_args()
 
 parent = args.parent
-min = args.min
-min = min.lower()
+aggregator = args.aggregator
+aggregator = aggregator.lower()
+
 process = args.process + '.conf'
 hosts_file = args.host
 template_file = args.template
 
-print('\n\nBusiness process= '+ process)
-print('Parent Node= '+ parent)
-print('Min= '+ min)
-print('Template File= '+ template_file)
-print('Hosts File= '+ hosts_file)
-print('\n\n')
-
 path_process =  '/neteye/shared/icingaweb2/conf/modules/businessprocess/processes'
 # tutorial = args.tutorial
 
+print('\n')
 logging.debug("[i] Process Name: %s" %process)
 logging.debug("[i] Parent Name: %s" %parent)
-logging.debug("[i] Min Argument: %s" %min)
+logging.debug("[i] Aggregator : %s" %aggregator)
 logging.debug("[i] Host File: %s" %hosts_file)
-logging.debug("[i] Template File: %s" %template_file)
+logging.debug("[i] Template File: %s\n" %template_file)
 
 
 host_list = []
@@ -53,10 +52,10 @@ header = '### Business Process Config File ###\n#\n# Title           : '+process
 # def helpOption():
 
 #     print("\nERROR  No arguments ERROR\n")
-#     print("business.py [-h] [-b --business process] [-p --parent node_parent] [-m --min min] [-t --template template_file] [-f --host host_file]" )
+#     print("business.py [-h] [-b --business process] [-p --parent node_parent] [-m --aggregator aggregator] [-t --template template_file] [-f --host host_file]" )
 #     print("-b | --business     Choose Your Config Business Process Name")
 #     print("-p | --parent       Choose your Node Master")
-#     print("-m | --min          Choose your Minimal Activity Service (INTEGER, AND, OR)")
+#     print("-m | --aggregator          Choose your aggregatorimal Activity Service (INTEGER, AND, OR)")
 #     print("-t | --template     Choose your Host Template")
 #     print("-f | --host         Choose your Hosts File\n")
 
@@ -89,21 +88,27 @@ def generate_temp(hostname,template):
 def parse_host(hosts_file, host_list):
     with open (hosts_file, 'r') as myfile:
         for line in myfile:
-            host = line.strip('\n')
-            host_list.append(host) 
+            if line != '\n':
+                host = line.strip('\n')
+                host_list.append(host)
+
+
     myfile.close
     return(host_list)
 
-def create_parent(parent, min, host_list):
-    if min == 'and':
+def create_parent(parent, aggregator, host_list):
+    if aggregator == 'and':
         parent_1 = parent + ' = ' + ' & '.join(host_list)
-    if min == 'or':
+    # if aggregator == 'not':
+    #    xxxxx
+    if aggregator == 'or':
         parent_1 = parent + ' = ' + ' | '.join(host_list)
     parent_2 = 'display 1;'+parent+';'+parent
-    if min == 'min'+(int) :
-        print('ciao')
-        parent_1 = parent + ' = ' + min + ' of: ' + ' + '.join(host_list)
-        exit()
+
+    match = re.match(r'min(\d+)', aggregator)
+
+    if match:
+        parent_1 = parent + ' = ' + match.group(1) + ' of: ' + ' + '.join(host_list)
     return(parent_1, parent_2)
 
 def check_exists(file):
@@ -157,7 +162,14 @@ def add_parent(process, parent, host_list, parent_1, parent_2):
             parent = parent + ' ='
             if parent in file_read:    
                 # update_parent(process, parent, parent_1)
-                print(parent + ' exists')
+                with in_place.InPlace(process) as fp:
+                    for line in fp:
+                        if parent in line:
+                            line = line.replace(line, parent_1)
+                            fp.write(line)
+                            fp.write('\n')
+                        elif parent not in line:
+                            fp.write(line)
             elif parent is not file_read:
                 write_file(process,host_list,parent_1,parent_2)
 
@@ -174,12 +186,11 @@ def add_parent(process, parent, host_list, parent_1, parent_2):
 #     sys.exit(1)
 
 host_list = parse_host(hosts_file, host_list)
-parent_1, parent_2 = create_parent(parent, min, host_list)
+parent_1, parent_2 = create_parent(parent, aggregator, host_list)
 os.chdir(path_process)
 
  
 print('Hosts = ' + str(host_list)[1:-1])
-print('Parent is = ' + parent)
 
 
 
