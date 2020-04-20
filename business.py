@@ -12,6 +12,7 @@ import logging
 import stat
 import re
 import in_place
+import linecache
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -230,9 +231,16 @@ if status == 'write':
     #Write Parent and Child
     write_file(process,host_list,parent_1,parent_2)
 elif status == 'append':
-    ##Add parent with hosts
-    add_host(process, host_list, template_file)
-    add_parent(process, parent, host_list, parent_1, parent_2)
- 
+    with open(process) as f:
+            file_read = f.read()
+            parent = parent + ' ='
+            f.close()
+            if parent in file_read:
+                ##Add parent with hosts
+                add_host(process, host_list, template_file)
+                add_parent(process, parent, host_list, parent_1, parent_2)
+            elif parent is not file_read:
+                add_parent(process, parent, host_list, parent_1, parent_2)
+        
 
 print('\n\n\nSuccessfully')
