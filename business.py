@@ -144,6 +144,19 @@ def write_file(process,host_list, parent_1, parent_2):
     process.close()
 
 
+def write_host(process,host_1, host_2):
+        print('Im am in Write_Host')
+        print("Host1 is {n} || Host2 is {s}".format(n=host_1, s=host_2))
+        process = open(process, 'a')
+
+        process.write(host_1)
+        process.write(host_2)
+        process.write('\n')
+
+        process.close()
+
+
+
 # def update_parent(process, parent, parent_1):
 #     with open(process, 'r') as f:
 #         data = f.readlines()
@@ -160,7 +173,9 @@ def add_parent(process, parent, host_list, parent_1, parent_2):
     with open(process) as f:
             file_read = f.read()
             parent = parent + ' ='
+            f.close()
             if parent in file_read:    
+                print(file_read)
                 # update_parent(process, parent, parent_1)
                 with in_place.InPlace(process) as fp:
                     for line in fp:
@@ -173,6 +188,34 @@ def add_parent(process, parent, host_list, parent_1, parent_2):
             elif parent is not file_read:
                 write_file(process,host_list,parent_1,parent_2)
 
+
+def add_host(process, host_list, template_file):      
+    print(host_list)
+    with open(process) as f:
+        file_read = f.read()
+        for host in host_list:
+            host_1, host_2 = generate_temp(host,template_file)
+            if host in file_read:     
+                print(host + ' is in File')
+                with in_place.InPlace(process) as fp:
+                    for line in fp:
+                        match = re.match(r"{}\s+\=".format(host), line)
+                        # print(bool(match))
+                        if bool(match) is True:
+                            line = line.replace(line, host_1)
+                            fp.write(line)
+                        elif bool(match) is False:
+                            fp.write(line)
+            elif host is not file_read:
+                write_host(process,host_1, host_2)
+          
+          
+          
+
+
+                        
+                        
+           
 
 
 
@@ -201,6 +244,8 @@ if status == 'write':
     write_file(process,host_list,parent_1,parent_2)
 elif status == 'append':
     ##Add parent with hosts
+    add_host(process, host_list, template_file)
     add_parent(process, parent, host_list, parent_1, parent_2)
+ 
 
 print('\n\n\nSuccessfully')
