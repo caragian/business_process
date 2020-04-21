@@ -145,8 +145,8 @@ def write_file(process,host_list, parent_1, parent_2):
     process.close()
 
 # Adding new Hosts in Append Mode
-def write_host(process,host_1, host_2):
-        print("Host1 is {n} || Host2 is {s}".format(n=host_1, s=host_2))
+def write_new_host(process,host_1, host_2):
+        print("New Host1 is {n}Host2 is {s} \n".format(n=host_1, s=host_2))
         process = open(process, 'a')
 
         process.write(host_1)
@@ -154,34 +154,39 @@ def write_host(process,host_1, host_2):
         process.write('\n')
 
         process.close()
+# Adding New Parent After New Hosts
+def write_new_parent(process, parent_1, parent_2):
+        logging.debug("[i] 'New parent is %s\n'" %parent_1) 
+        process = open(process, 'a')
+        process.write(parent_1)
+        process.write('\n')
+        process.write(parent_2)
+        process.write('\n\n')
+        process.close()
 
 # Update Parent Line or Write New Parent with Hosts
-def add_parent(process, parent, host_list, parent_1, parent_2):
+def add_parent(process, parent, parent_1, parent_2):
     with open(process) as f:
-            file_read = f.read()
-            parent = parent + ' ='
-            f.close()
-            if parent in file_read:    
-                print(file_read)
-                # update_parent(process, parent, parent_1)
-                with in_place.InPlace(process) as fp:
-                    for line in fp:
-                        # If parent it's in this Line: Replace Line with New Line (containt also new Hosts)
-                        if parent in line:
-                            line = line.replace(line, parent_1)
-                            fp.write(line)
-                            fp.write('\n')
-                        # If parent it's now in this Line: copy Line to New File
-                        elif parent not in line:
-                            fp.write(line)
-            # If parent not exists in File: Create New Parent
-            elif parent is not file_read:
-                process = open(process, 'a')
-                process.write(parent_1)
-                process.write('\n')
-                process.write(parent_2)
-                process.write('\n\n')
-                process.close()
+        file_read = f.read()
+        parent = parent + ' ='
+        f.close()
+        if parent in file_read:    
+            logging.debug("[i] Parent exists: Update in Progeress\n")
+            # update_parent(process, parent, parent_1)
+            with in_place.InPlace(process) as fp:
+                for line in fp:
+                    # If parent it's in this Line: Replace Line with New Line (containt also new Hosts)
+                    if parent in line:
+                        line = line.replace(line, parent_1)
+                        fp.write(line)
+                        fp.write('\n')
+                    # If parent it's now in this Line: copy Line to New File
+                    elif parent not in line:
+                        fp.write(line)
+        # If parent not exists in File: Create New Parent
+        elif parent is not file_read:
+            logging.debug("[i] Parent not exists: Writing New Parent\n")
+            write_new_parent(process, parent_1, parent_2)
 
 # Update Hosts with new Template or Write New Hosts
 def add_host(process, host_list, template_file):      
@@ -192,7 +197,7 @@ def add_host(process, host_list, template_file):
             host_1, host_2 = generate_temp(host,template_file)
             # Check if Host is in the File
             if host in file_read:     
-                print(host + ' is in File')
+                logging.debug("[i] %s Hosts already exists: Update Host in Progeress\n" %host) 
                 # Replace Line with New Template
                 with in_place.InPlace(process) as fp:
                     for line in fp:
@@ -206,9 +211,14 @@ def add_host(process, host_list, template_file):
                             fp.write(line)
             # Add New Host
             elif host is not file_read:
-                write_host(process,host_1, host_2)
+                logging.debug("[i] %s Hosts not exists: Writing new Host\n" %host) 
+                write_new_host(process,host_1, host_2)
           
-          
+def read_file(process):
+    with open(process) as f:
+        file_read = f.read()
+        f.close()
+        print(file_read)
 
 #MAIN
 
@@ -225,17 +235,12 @@ status = check_exists(process)
 if status == 'write':
     #Write Parent and Child
     write_file(process,host_list,parent_1,parent_2)
+    read_file(process)
 elif status == 'append':
-    with open(process) as f:
-            file_read = f.read()
-            parent = parent + ' ='
-            f.close()
-            if parent in file_read:
-                ##Add parent with hosts
-                add_host(process, host_list, template_file)
-                add_parent(process, parent, host_list, parent_1, parent_2)
-            elif parent is not file_read:
-                add_parent(process, parent, host_list, parent_1, parent_2)
-        
+    ##Add parent with hosts
+    add_host(process, host_list, template_file)
+    add_parent(process, parent, parent_1, parent_2)
+    read_file(process)
+ 
 
 print('\n\n\nSuccessfully')
