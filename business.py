@@ -12,6 +12,7 @@ import logging
 import stat
 import re
 import in_place
+import linecache
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -173,9 +174,14 @@ def add_parent(process, parent, host_list, parent_1, parent_2):
                         # If parent it's now in this Line: copy Line to New File
                         elif parent not in line:
                             fp.write(line)
-            # If parent not exists in File: Create New Parent with his Hosts
+            # If parent not exists in File: Create New Parent
             elif parent is not file_read:
-                write_file(process,host_list,parent_1,parent_2)
+                process = open(process, 'a')
+                process.write(parent_1)
+                process.write('\n')
+                process.write(parent_2)
+                process.write('\n\n')
+                process.close()
 
 # Update Hosts with new Template or Write New Hosts
 def add_host(process, host_list, template_file):      
@@ -203,17 +209,7 @@ def add_host(process, host_list, template_file):
                 write_host(process,host_1, host_2)
           
           
-          
 
-
-                        
-                        
-           
-
-
-
-
-        
 #MAIN
 
 # Reading Input
