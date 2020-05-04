@@ -57,7 +57,7 @@ header = '### Business Process Config File ###\n#\n# Title           : '+process
 #     print("business.py [-h] [-b --business process] [-p --parent node_parent] [-m --aggregator aggregator] [-t --template template_file] [-f --host host_file]" )
 #     print("-b | --business     Choose Your Config Business Process Name")
 #     print("-p | --parent       Choose your Node Master")
-#     print("-m | --aggregator          Choose your aggregatorimal Activity Service (INTEGER, AND, OR)")
+#     print("-m | --aggregator   Choose your aggregatorimal Activity Service (INTEGER, AND, OR)")
 #     print("-t | --template     Choose your Host Template")
 #     print("-f | --host         Choose your Hosts File\n")
 
